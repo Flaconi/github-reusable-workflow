@@ -1,0 +1,65 @@
+name: Backup Github Respository
+
+on:
+  workflow_call:
+    ###
+    ### Variables
+    ###
+    inputs:
+      enabled:
+        description: 'Determines whether this workflow is enabled at all (will run or skip).'
+        required: true
+        type: boolean
+      region:
+        description: 'IAM Role Region'
+        required: true
+        type: string
+        default: eu-central-1
+    ###
+    ### Secrets
+    ###
+    secrets:
+      bucket_name:
+        description: 'The name of the bucket to backup the repository tar'
+        required: true
+      iam_role_arn:
+        description: 'The iam role backup the repository tar to S3'
+        required: true
+
+jobs:
+  deploy:
+    name: Backup Respository To S3 Bucket
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: inputs.enabled
+    steps:
+      - name: Configurations
+        id: settings
+        run: |
+          echo "::set-output name=org::${{ github.event.repository.organization }}"
+          echo "::set-output name=repo::${{ github.event.repository.name }}"
+          echo "::set-output name=compress_repo::${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz"
+
+      - name: Clone and Compress Repository
+        run: |
+          if [ -z "${{ secrets.REPO_READ_TOKEN }}" ]; then
+            git clone https://github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
+          else
+            git clone https://${{ secrets.REPO_READ_TOKEN }}@github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
+          fi
+
+      - name: Compressing Repository
+        run: |
+          tar -czvf ${{ steps.settings.outputs.compress_repo }} ${{ steps.settings.outputs.repo }}
+
+      - name: Backup Repo to S3 Bucket
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: "${{ secrets.iam_role_arn }}"
+          aws-region: ${{ inputs.region }}
+
+      - name: Backup Repo to S3 Bucket
+        run: |
+          aws s3 cp ${{ steps.settings.outputs.compress_repo }} s3://${{ secrets.bucket_name }}/${{ steps.settings.outputs.repo }}/
