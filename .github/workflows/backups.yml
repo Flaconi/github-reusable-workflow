@@ -25,7 +25,7 @@ on:
       iam_role_arn:
         description: 'The iam role backup the repository tar to S3'
         required: true
-      token:
+      git_read_token:
         description: 'Github read only token, required for private repositories'
         required: false
 
@@ -47,10 +47,10 @@ jobs:
 
       - name: Clone and Compress Repository
         run: |
-          if [ -z "${{ secrets.token }}" ]; then
+          if [ -z "${{ secrets.git_read_token }}" ]; then
             git clone https://github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
           else
-            git clone https://${{ secrets.token }}@github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
+            git clone https://${{ secrets.git_read_token }}@github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
           fi
 
       - name: Compressing Repository
