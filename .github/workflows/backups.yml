@@ -57,7 +57,7 @@ jobs:
         run: |
           tar -czvf ${{ steps.settings.outputs.compress_repo }} ${{ steps.settings.outputs.repo }}
 
-      - name: Backup Repo to S3 Bucket
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: "${{ secrets.iam_role_arn }}"
