@@ -25,9 +25,6 @@ on:
       iam_role_arn:
         description: 'The iam role backup the repository tar to S3'
         required: true
-      git_read_token:
-        description: 'Github read only token, required for private repositories'
-        required: false
 
 jobs:
   deploy:
