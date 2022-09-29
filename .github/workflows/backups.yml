@@ -25,9 +25,6 @@ on:
       iam_role_arn:
         description: 'The iam role backup the repository tar to S3'
         required: true
-      git_read_token:
-        description: 'Github read only token, required for private repositories'
-        required: false
 
 jobs:
   deploy:
@@ -45,15 +42,11 @@ jobs:
           echo "::set-output name=repo::${{ github.event.repository.name }}"
           echo "::set-output name=compress_repo::${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz"
 
-      - name: Clone and Compress Repository
-        run: |
-          if [ -z "${{ secrets.git_read_token }}" ]; then
-            git clone https://github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
-          else
-            git clone https://${{ secrets.git_read_token }}@github.com/${{ steps.settings.outputs.org }}/${{ steps.settings.outputs.repo }}.git
-          fi
+      - name: Clone Repository
+        uses: actions/checkout@v2
 
-      - name: Compressing Repository
+      - name: Compress Repository
+        working-directory: ".."
         run: |
           tar -czvf ${{ steps.settings.outputs.compress_repo }} ${{ steps.settings.outputs.repo }}
 
@@ -63,6 +56,7 @@ jobs:
           role-to-assume: "${{ secrets.iam_role_arn }}"
           aws-region: ${{ inputs.region }}
 
-      - name: Backup Repo to S3 Bucket
+      - name: Backup Repository to S3 Bucket
+        working-directory: ".."
         run: |
           aws s3 cp ${{ steps.settings.outputs.compress_repo }} s3://${{ secrets.bucket_name }}/${{ steps.settings.outputs.repo }}/
