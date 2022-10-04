@@ -43,7 +43,7 @@ jobs:
           echo "::set-output name=compress_repo::${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz"
 
       - name: Clone Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3.1.0
 
       - name: Compress Repository
         working-directory: ".."
