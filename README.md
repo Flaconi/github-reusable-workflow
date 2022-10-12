@@ -23,7 +23,7 @@ on:
 
 jobs:
   backup:
-    uses: Flaconi/github-reusable-workflow/.github/workflows/backups.yml@master
+    uses: Flaconi/github-reusable-workflow/.github/workflows/backups.yml@v1
     with:
       enabled: true
       region: eu-central-1
