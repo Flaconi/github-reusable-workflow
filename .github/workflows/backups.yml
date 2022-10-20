@@ -1,4 +1,4 @@
-name: Backup Github Respository
+name: Backup Github Repository
 
 on:
   workflow_call:
@@ -22,7 +22,7 @@ on:
 
 jobs:
   deploy:
-    name: Backup Respository To S3 Bucket
+    name: Backup Repository To S3 Bucket
     runs-on: ubuntu-latest
     permissions:
       id-token: write
