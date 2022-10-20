@@ -2,9 +2,6 @@ name: Backup Github Respository
 
 on:
   workflow_call:
-    ###
-    ### Variables
-    ###
     inputs:
       enabled:
         description: 'Determines whether this workflow is enabled at all (will run or skip).'
@@ -15,9 +12,6 @@ on:
         required: true
         type: string
         default: eu-central-1
-    ###
-    ### Secrets
-    ###
     secrets:
       bucket_name:
         description: 'The name of the bucket to backup the repository tar'
