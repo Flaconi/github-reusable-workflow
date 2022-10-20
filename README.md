@@ -3,14 +3,12 @@
 [![Tag](https://img.shields.io/github/tag/Flaconi/github-reusable-workflow.svg)](https://github.com/Flaconi/github-reusable-workflow/releases)
 [![License](https://img.shields.io/badge/license-MIT-%233DA639.svg)](https://opensource.org/licenses/MIT)
 
-Github reusable workflow to backup github repositories
-
-
-## :computer: Usage
+## :computer: A Reusable workflow to backup GitHub repository to S3 bucket
 
 To trigger the flow, add the following to your respective repository you want to backup.
+
 ```
-name: Backup Github Respository
+name: Backup Respository
 
 # -------------------------------------------------------------------------------------------------
 # When to run
