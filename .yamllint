@@ -1,0 +1,10 @@
+---
+extends: default
+
+rules:
+  truthy:
+    check-keys: False
+    level: error
+  line-length: disable
+  comments:
+    min-spaces-from-content: 1
