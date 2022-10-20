@@ -32,9 +32,9 @@ jobs:
       - name: Configurations
         id: settings
         run: |
-          echo "::set-output name=org::${{ github.event.repository.organization }}"
-          echo "::set-output name=repo::${{ github.event.repository.name }}"
-          echo "::set-output name=compress_repo::${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz"
+          echo "org=${{ github.event.repository.organization }}" >> $GITHUB_OUTPUT
+          echo "repo=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          echo "gzip=${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz" >> $GITHUB_OUTPUT
 
       - name: Clone Repository
         uses: actions/checkout@v3
@@ -42,7 +42,7 @@ jobs:
       - name: Compress Repository
         working-directory: ".."
         run: |
-          tar -czvf ${{ steps.settings.outputs.compress_repo }} ${{ steps.settings.outputs.repo }}
+          tar -czvf ${{ steps.settings.outputs.gzip }} ${{ steps.settings.outputs.repo }}
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -53,4 +53,4 @@ jobs:
       - name: Backup Repository to S3 Bucket
         working-directory: ".."
         run: |
-          aws s3 cp ${{ steps.settings.outputs.compress_repo }} s3://${{ secrets.bucket_name }}/${{ steps.settings.outputs.repo }}/
+          aws s3 cp ${{ steps.settings.outputs.gzip }} s3://${{ secrets.bucket_name }}/${{ steps.settings.outputs.repo }}/
