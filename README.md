@@ -36,7 +36,7 @@ jobs:
 
 | :warning: UPDATE    |
 |:--------------------|
-| The following is not yet available as part of Dependabots package ecosystem.<br/>https://github.community/t/dependabot-with-reusable-workflow-versions/207372/4 |
+| The following is not yet available as part of Dependabots package ecosystem.<br/>https://github.com/community/community/discussions/8088 |
 
 
 Since [Dependabot](https://docs.github.com/en/github/administering-a-repository/keeping-your-actions-up-to-date-with-github-dependabot) has [native GitHub Actions support](https://docs.github.com/en/github/administering-a-repository/configuration-options-for-dependency-updates#package-ecosystem), to enable it on your GitHub repo all you need to do is add the `.github/dependabot.yml` file:
