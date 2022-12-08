@@ -3,6 +3,7 @@ extends: default
 
 rules:
   truthy:
+    allowed-values: ['true', 'false', 'True', "False"]
     check-keys: False
     level: error
   line-length: disable
