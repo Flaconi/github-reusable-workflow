@@ -1,17 +1,57 @@
 ---
-name: Backup Repository
+name: Backup Github Repository
 
 on:
-  push:
-    branches:
-      - master
+  workflow_call:
+    inputs:
+      enabled:
+        description: 'Determines whether this workflow is enabled at all (will run or skip).'
+        required: true
+        type: boolean
+      region:
+        description: 'IAM Role Region'
+        required: true
+        type: string
+        default: eu-central-1
+    secrets:
+      bucket_name:
+        description: 'The name of the bucket to backup the repository tar'
+        required: true
+      iam_role_arn:
+        description: 'The iam role backup the repository tar to S3'
+        required: true
 
 jobs:
   backup:
-    uses: Flaconi/github-reusable-workflow/.github/workflows/backups.yml@v1
-    with:
-      enabled: True
-      region: eu-central-1
-    secrets:
-      iam_role_arn: ${{ secrets.BACKUP_REPO_IAM_ROLE }}
-      bucket_name: ${{ secrets.BACKUP_REPO_BUCKET }}
+    name: Backup Repository To S3 Bucket
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    if: inputs.enabled
+    steps:
+      - name: Configurations
+        id: settings
+        run: |
+          echo "org=${{ github.event.repository.organization }}" >> $GITHUB_OUTPUT
+          echo "repo=${{ github.event.repository.name }}" >> $GITHUB_OUTPUT
+          echo "gzip=${{ github.event.repository.name }}-$(date +'%Y-%m-%d_%H-%M').tar.gz" >> $GITHUB_OUTPUT
+
+      - name: Clone Repository
+        uses: actions/checkout@v3
+
+      - name: Compress Repository
+        working-directory: ".."
+        run: |
+          tar -czvf ${{ steps.settings.outputs.gzip }} ${{ steps.settings.outputs.repo }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: "${{ secrets.iam_role_arn }}"
+          aws-region: ${{ inputs.region }}
+
+      - name: Backup Repository to S3 Bucket
+        working-directory: ".."
+        run: |
+          aws s3 cp ${{ steps.settings.outputs.gzip }} s3://${{ secrets.bucket_name }}/${{ steps.settings.outputs.repo }}/
