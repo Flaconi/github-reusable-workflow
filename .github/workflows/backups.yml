@@ -48,7 +48,7 @@ jobs:
           tar -czvf ${{ steps.settings.outputs.gzip }} ${{ steps.settings.outputs.repo }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: "${{ secrets.iam_role_arn }}"
           aws-region: ${{ inputs.region }}
