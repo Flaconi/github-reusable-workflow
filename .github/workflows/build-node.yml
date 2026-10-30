@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           show-progress: false
-      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+      - uses: Engerim/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           node_version: ${{ inputs.node_version }}
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           show-progress: false
-      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+      - uses: Engerim/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           node_version: ${{ inputs.node_version }}
@@ -73,7 +73,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           show-progress: false
-      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+      - uses: Engerim/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           node_version: ${{ inputs.node_version }}

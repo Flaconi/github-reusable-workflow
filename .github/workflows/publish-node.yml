@@ -74,7 +74,7 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
       - name: install
-        uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+        uses: Engerim/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
         with:
           npm_token: ${{ secrets.NPM_TOKEN }}
           node_version: ${{ inputs.node_version }}
