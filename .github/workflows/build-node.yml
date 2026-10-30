@@ -1,0 +1,82 @@
+---
+# Public mirror of the compile/lint/test jobs of Flaconi/github-actions build-node.yml, for public
+# repositories, which can't call reusable workflows from that private repository.
+# Keep the job ids, inputs and behaviour in sync with the original.
+name: Build Node
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        type: string
+        default: '24'
+      working_dir:
+        type: string
+        default: .
+        description: optional a working dir where to run the install
+      skip:
+        type: boolean
+        required: false
+        default: false
+        description: should the steps be skipped
+      runTest:
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  compile:
+    timeout-minutes: 10
+    if: ${{ always() && ! inputs.skip }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          show-progress: false
+      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          node_version: ${{ inputs.node_version }}
+          working_dir: ${{ inputs.working_dir }}
+      - run: yarn compile
+        working-directory: ${{ inputs.working_dir }}
+
+  lint:
+    timeout-minutes: 5
+    if: ${{ ! inputs.skip && needs.compile.result == 'success' }}
+    needs: [compile]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          show-progress: false
+      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          node_version: ${{ inputs.node_version }}
+          working_dir: ${{ inputs.working_dir }}
+      - run: yarn lint
+        working-directory: ${{ inputs.working_dir }}
+
+  test:
+    timeout-minutes: 10
+    if: ${{ ! inputs.skip && inputs.runTest && needs.compile.result == 'success' }}
+    needs: [compile]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          show-progress: false
+      - uses: Flaconi/github-reusable-workflow/.github/actions/yarn-install@npm-public-workflows # TODO: back to @v1 before merge
+        with:
+          npm_token: ${{ secrets.NPM_TOKEN }}
+          node_version: ${{ inputs.node_version }}
+          working_dir: ${{ inputs.working_dir }}
+      - run: yarn test
+        working-directory: ${{ inputs.working_dir }}

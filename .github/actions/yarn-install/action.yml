@@ -1,0 +1,66 @@
+---
+# Public mirror of Flaconi/github-actions yarn-install (Yarn Berry only, without the New Relic
+# timer). Keep the inputs and behaviour in sync with the original.
+name: Yarn install
+description: runs yarn install, optionally with a read-only npm token for private packages
+inputs:
+  npm_token:
+    required: false
+    default: ''
+    description: optional read-only NPM TOKEN used to install private packages
+  node_version:
+    default: '24'
+    description: node major version (18, 20, 22 or 24)
+  working_dir:
+    default: .
+    description: optional a working dir where to run the install
+  cache:
+    default: 'true'
+    description: cache node_modules and yarn install state that can speed up the install process
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: ${{ inputs.node_version == '24' && '24.18.0' || inputs.node_version }}
+        cache-dependency-path: ${{ inputs.working_dir }}/yarn.lock
+    - name: cache all node_modules
+      id: cache-modules
+      if: ${{ inputs.cache == 'true' }}
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ inputs.working_dir }}/**/node_modules
+        key: ${{ runner.os }}-${{ runner.arch }}-node_modules-${{ inputs.working_dir }}-${{ hashFiles('yarn.lock', format('{0}/yarn.lock', inputs.working_dir), format('{0}/**/package.json', inputs.working_dir)) }}
+    - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      if: ${{ inputs.cache == 'true' }}
+      with:
+        path: ${{ inputs.working_dir }}/.yarn/install-state.gz
+        key: ${{ runner.os }}-${{ runner.arch }}-state-${{ inputs.working_dir }}-${{ hashFiles('yarn.lock', format('{0}/yarn.lock', inputs.working_dir), format('{0}/**/package.json', inputs.working_dir)) }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-state-${{ inputs.working_dir }}-
+    - name: find location of global yarn cache
+      id: yarn-cache
+      if: inputs.cache == 'true' && steps.cache-modules.outputs.cache-hit != 'true'
+      run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+      shell: bash
+      working-directory: ${{ inputs.working_dir }}
+    - name: cache global yarn cache
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      if: inputs.cache == 'true' && steps.cache-modules.outputs.cache-hit != 'true'
+      with:
+        path: ${{ steps.yarn-cache.outputs.dir }}
+        key: ${{ runner.os }}-${{ runner.arch }}-yarn-${{ hashFiles('yarn.lock', format('{0}/yarn.lock', inputs.working_dir)) }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-yarn-
+    - name: add npm_token to yarnrc.yml
+      if: ${{ inputs.npm_token != '' }}
+      run: yarn config set npmAuthToken "${NPM_TOKEN}"
+      shell: bash
+      env:
+        NPM_TOKEN: ${{ inputs.npm_token }}
+      working-directory: ${{ inputs.working_dir }}
+    - name: run install
+      if: ${{ steps.cache-modules.outputs.cache-hit != 'true' || hashFiles(format('{0}/.yarn/install-state.gz', inputs.working_dir)) == '' }}
+      run: yarn install --immutable
+      shell: bash
+      working-directory: ${{ inputs.working_dir }}
