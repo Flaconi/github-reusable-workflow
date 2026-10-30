@@ -53,8 +53,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           show-progress: false
-          # pushing with the bot token (not GITHUB_TOKEN) makes the version commit trigger CI
-          token: ${{ secrets.REPO_READ_TOKEN }}
+          # pushing with the bot token (not GITHUB_TOKEN) makes the version commit trigger CI and lets
+          # bot-shop-ci bypass branch rulesets; repos without REPO_READ_TOKEN fall back to GITHUB_TOKEN,
+          # which can push the beta version commit to a branch but not to a protected default branch
+          token: ${{ secrets.REPO_READ_TOKEN || github.token }}
       - name: Set output
         id: vars
         shell: bash
